@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Names</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.min.js"></script>
+</head>
+<body>
+    
+    <form id="myForm">
+        <h2>Names</h2>
+        <div id= "pie"></div>
+        <select id="SelName" onchange="optionChanged(this.value,samplenamelist)">
+            <option>Choose Name</option>
+        </select>
+            <script>
+                var samplenamelist;
+                var stuff;
+                function init(){
+                    var i;
+                    
+                    stuff = [{
+                        values: [1,2,3,4],
+                        labels: ["a","b","c","d"],
+                        type: "pie"
+                    }];
+                    
+                    var layout = {height: 500,width: 500};
+                    Plotly.plot("pie",stuff,layout);
+                    
+                }
+                
+                Plotly.d3.json("/names", function(error, samplenamelist){
+                    for(i = 0; i < samplenamelist.length; i += 1) {
+                        var $dropdown = d3.select("#SelName");
+                        var $label = $dropdown.append("option").attr("value",samplenamelist[i]).text(samplenamelist[i]);
+                    }
+                });
+                
+                function optionChanged(route){
+                    console.log(route);
+                    var newdata;
+                    Plotly.d3.json(`/samples/${route}`,function(error,data){
+                        console.log(data);
+                        newdata = data;
+                    });
+                    function updatePlotly(data) {
+                        var PIE = document.getElementById("pie");
+                        Plotly.restyle(PIE, "values", [newdata]);
+                    }
+                    updatePlotly(stuff);
+
+                }
+                
+                
+                init();
+            </script>
+        
+    </form>
+</body>
+</html>

@@ -9,7 +9,7 @@ from sqlalchemy.sql import text
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.automap import automap_base
 import matplotlib.pyplot as plt
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template, request, redirect
 import json
 
 engine = create_engine("sqlite:///belly_button_biodiversity.sqlite")
@@ -44,7 +44,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def hw15home():
-    return("homepage. please update")
+    return render_template("index.html")
 
 @app.route('/names')
 def names():
