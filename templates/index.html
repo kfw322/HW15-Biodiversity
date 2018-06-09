@@ -13,52 +13,81 @@
     <form id="myForm">
         <h2>Names</h2>
         <div id= "pie"></div>
-        <select id="SelName" onchange="optionChanged(this.value,samplenamelist)">
+        <select id="SelName" onchange="optionChanged(this.value)">
             <option>Choose Name</option>
-        </select>
+        
             <script>
+                console.log("HI!");
                 var samplenamelist;
-                var stuff;
+                var values = [10,9,8,7,6,5,4,3,2,1];
+                var labels = ["a","b","c","d","e","f","g","h","i","j"];
+                var i;
+                var data;
+                
                 function init(){
-                    var i;
-                    
-                    stuff = [{
-                        values: [1,2,3,4],
-                        labels: ["a","b","c","d"],
+                    console.log("init");
+                    data = [{
+                        values: values,
+                        labels: labels,
                         type: "pie"
                     }];
-                    
                     var layout = {height: 500,width: 500};
-                    Plotly.plot("pie",stuff,layout);
-                    
+                    Plotly.plot("pie",data,layout);
+                    console.log("plotted: ", data);
                 }
-                
+
                 Plotly.d3.json("/names", function(error, samplenamelist){
+                    console.log("plotly.d3.json./names");
                     for(i = 0; i < samplenamelist.length; i += 1) {
                         var $dropdown = d3.select("#SelName");
                         var $label = $dropdown.append("option").attr("value",samplenamelist[i]).text(samplenamelist[i]);
                     }
+                    
                 });
-                
+                    
                 function optionChanged(route){
+                    console.log("optionchanged");
                     console.log(route);
                     var newdata;
+                    values=[];
+                    labels=[];
                     Plotly.d3.json(`/samples/${route}`,function(error,data){
+                        labels = data.map(data => data.otu_ids)[0].splice(0,10);
+                        console.log("labels:",labels);
+                        values = data.map(data => data.sample_values)[0].splice(0,10);
+                        console.log("values:",values);
+                        values = values.map(Number);
+                        
+                        data = [{
+                            values: values,
+                            labels: labels,
+                            type: "pie"
+                        }];
                         console.log(data);
                         newdata = data;
+                        console.log(labels,values);    
                     });
-                    function updatePlotly(data) {
-                        var PIE = document.getElementById("pie");
-                        Plotly.restyle(PIE, "values", [newdata]);
-                    }
-                    updatePlotly(stuff);
 
+                    function updatePlotly(labels,values) {
+                        console.log("updateplotly");
+                        var PIE = document.getElementById("pie");
+                        
+                        Plotly.restyle(PIE, "values", values);
+                        console.log(values);
+                        Plotly.restyle(PIE, "labels", labels);
+                        console.log(labels);
+                        console.log("restyled");
+                        
+                        console.log(PIE);
+                    }
+                    updatePlotly(labels,values);
+                    
                 }
-                
-                
                 init();
             </script>
+        </select>
         
     </form>
+    
 </body>
 </html>
