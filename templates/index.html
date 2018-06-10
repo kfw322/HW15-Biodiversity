@@ -17,9 +17,10 @@
             </select>
         <div id= "pie"></div>
         <hr>
-        
+
             <script>
                 var samplenamelist;
+                var hovertext = [];
                 var values = [];
                 var labels = [];
                 var i;
@@ -30,6 +31,7 @@
                     data = [{
                         values: values,
                         labels: labels,
+                        hovertext: hovertext,
                         type: "pie"
                     }];
                     var layout = {};
@@ -53,32 +55,43 @@
                     var newdata;
                     values=[];
                     labels=[];
+                    hovertext=[];
                     Plotly.d3.json(`/samples/${route}`,function(error,data){
                         labels = data.map(data => data.otu_ids)[0].splice(0,10);
                         console.log("labels:",labels);
                         values = data.map(data => data.sample_values)[0].splice(0,10);
                         values = values.map(Number);
                         console.log("values:",values);
-                        
-                        data = [{
-                            values: values,
-                            labels: labels,
-                            type: "pie"
-                        }];
-                        console.log(data);
-                        newdata = data;
-                        console.log(labels,values);  
-                        updatePlotly(labels,values);  
-                    });
-                
-                    function updatePlotly(labels,values) {
 
-                        console.log("UPDATE PLOTLY INPUT TEST LABELS: ",labels," VALUES: ", values);
+                        Plotly.d3.json(`/metadata/${route}`,function(error,data){
+                            hovertext = JSON.stringify(data);
+                            console.log(hovertext);
+
+                            data = [{
+                                values: values,
+                                labels: labels,
+                                hovertext: hovertext,
+                                type: "pie"
+                            }];
+                            console.log(data);
+                            newdata = data;
+                            console.log(labels,values,hovertext);  
+                            updatePlotly(labels,values,hovertext);  
+                        });
+
+                    });
+
+
+                
+                    function updatePlotly(labels,values,hovertext) {
+
+                        console.log("UPDATE PLOTLY INPUT TEST LABELS: ",labels," VALUES: ", values, "hovertext: ", hovertext);
                         var PIE = document.getElementById("pie");
 
                         data = {
                             values: [values],
                             labels: [labels],
+                            hovertext: [hovertext],
                             type: "pie"
                         };
                         Plotly.restyle(PIE, data);
