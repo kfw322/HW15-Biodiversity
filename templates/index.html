@@ -7,19 +7,41 @@
     <title>Names</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 </head>
 <body>
     
     <form id="myForm">
-        <h2>Names</h2>
-        <select id="SelName" onchange="optionChanged(this.value)">
-                <option>Choose Name</option>
-            </select>
-        <div id= "pie"></div>
-        <hr>
+        <div class="container-fluid">
+            <div class="row">
+                <center><h1>Title</h1></center>
+            </div>
+            <div class="row">
+                <div class="col-sm-2">
+                    <h2>Select BB name</h2>
+                    <select id="SelName" onchange="optionChanged(this.value)">
+                        <option></option>
+                    </select>
+                    <h2>Sidebar</h2>
+                    <div id= "sidebar" class="width: 100% height: 100%"></div>
+                </div>
+                <div class="col-sm-5">
+                    <h2>Pie Chart</h2>
+                    <div id= "pie" class="width: 100% height: 100%"></div>
+                </div>
+                <div class="col-sm-5">
+                    <h2>Bubble Chart</h2>
+                    <div id= "bubble" class="width: 100% height: 100%"></div>
+                </div>
+            </div>
+        </div>
 
+        <hr>
+    </form>
             <script>
                 var samplenamelist;
+                var sidebartext;
                 var hovertext = [];
                 var values = [];
                 var labels = [];
@@ -27,7 +49,7 @@
                 var data;
                 
                 function init(){
-                    console.log("init");
+                    
                     data = [{
                         values: values,
                         labels: labels,
@@ -36,11 +58,9 @@
                     }];
                     var layout = {};
                     Plotly.plot("pie",data,layout);
-                    console.log("plotted: ", data);
                 }
 
                 Plotly.d3.json("/names", function(error, samplenamelist){
-                    console.log("plotly.d3.json./names");
                     for(i = 0; i < samplenamelist.length; i += 1) {
                         var $dropdown = d3.select("#SelName");
                         var $label = $dropdown.append("option").attr("value",samplenamelist[i]).text(samplenamelist[i]);
@@ -50,8 +70,7 @@
                 init();
                     
                 function optionChanged(route){
-                    console.log("optionchanged");
-                    console.log(route);
+                
                     var newdata;
                     var otu;
                     values=[];
@@ -60,47 +79,31 @@
                     
                     Plotly.d3.json(`/samples/${route}`,function(error,data){
                         labels = data.map(data => data.otu_ids)[0].splice(0,10);
-                        console.log("labels:",labels);
                         values = data.map(data => data.sample_values)[0].splice(0,10);
                         values = values.map(Number);
-                        console.log("values:",values);
                         Plotly.d3.json(`/otu`,function(error,data){
                             for (var l in labels.map(Number)){
-                                console.log(labels.map(Number));
                                 hovertext.push(data[labels[l]]);
-                                
                             }
-                            //hovertext = JSON.stringify(data);
-                            console.log(hovertext);
-
 
                             Plotly.d3.json(`/metadata/${route}`,function(error,data){
-                                // this needs to be on the sidebar thingy - hovertext=JSON.stringify(data);
+                                sidebartext=data;
                                 
-
-                            
-                                
-                                console.log(labels);
-
                                 data = [{
                                     values: values,
                                     labels: labels,
                                     hovertext: hovertext,
                                     type: "pie"
                                 }];
-                                console.log(data);
-                                newdata = data;
-                                console.log(labels,values,hovertext);  
-                                updatePlotly(labels,values,hovertext);  
+                                newdata = data; 
+                                updatePlotly(labels,values,hovertext, sidebartext);  
 
                             });
                         });
 
                     });
 
-
-                
-                    function updatePlotly(labels,values,hovertext) {
+                    function updatePlotly(labels,values,hovertext, sidebartext) {
 
                         console.log("UPDATE PLOTLY INPUT TEST LABELS: ",labels," VALUES: ", values, "hovertext: ", hovertext);
                         var PIE = document.getElementById("pie");
@@ -113,16 +116,16 @@
                         };
                         Plotly.restyle(PIE, data);
 
-                        console.log(PIE, data);
-
-                        console.log("restyled");
+                        var panel = document.getElementById("sidebar");
+                        panel.innerHTML = "";
+                        var sidebaroutput = "Sample Metadata";
+                        for(var entry in sidebartext){
+                            sidebaroutput += ("<br>" + entry + ": " + sidebartext[entry]);
+                        }
+                        panel.innerHTML += sidebaroutput;
+                        console.log(JSON.stringify(sidebartext));
                     }
                 }
-                
-                
             </script>
-        
-    </form>
-    
 </body>
 </html>
