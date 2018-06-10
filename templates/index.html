@@ -53,30 +53,47 @@
                     console.log("optionchanged");
                     console.log(route);
                     var newdata;
+                    var otu;
                     values=[];
                     labels=[];
                     hovertext=[];
+                    
                     Plotly.d3.json(`/samples/${route}`,function(error,data){
                         labels = data.map(data => data.otu_ids)[0].splice(0,10);
                         console.log("labels:",labels);
                         values = data.map(data => data.sample_values)[0].splice(0,10);
                         values = values.map(Number);
                         console.log("values:",values);
-
-                        Plotly.d3.json(`/metadata/${route}`,function(error,data){
-                            hovertext = JSON.stringify(data);
+                        Plotly.d3.json(`/otu`,function(error,data){
+                            for (var l in labels.map(Number)){
+                                console.log(labels.map(Number));
+                                hovertext.push(data[labels[l]]);
+                                
+                            }
+                            //hovertext = JSON.stringify(data);
                             console.log(hovertext);
 
-                            data = [{
-                                values: values,
-                                labels: labels,
-                                hovertext: hovertext,
-                                type: "pie"
-                            }];
-                            console.log(data);
-                            newdata = data;
-                            console.log(labels,values,hovertext);  
-                            updatePlotly(labels,values,hovertext);  
+
+                            Plotly.d3.json(`/metadata/${route}`,function(error,data){
+                                // this needs to be on the sidebar thingy - hovertext=JSON.stringify(data);
+                                
+
+                            
+                                
+                                console.log(labels);
+
+                                data = [{
+                                    values: values,
+                                    labels: labels,
+                                    hovertext: hovertext,
+                                    type: "pie"
+                                }];
+                                console.log(data);
+                                newdata = data;
+                                console.log(labels,values,hovertext);  
+                                updatePlotly(labels,values,hovertext);  
+
+                            });
                         });
 
                     });
