@@ -12,15 +12,16 @@
     
     <form id="myForm">
         <h2>Names</h2>
-        <div id= "pie"></div>
         <select id="SelName" onchange="optionChanged(this.value)">
-            <option>Choose Name</option>
+                <option>Choose Name</option>
+            </select>
+        <div id= "pie"></div>
+        <hr>
         
             <script>
-                console.log("HI!");
                 var samplenamelist;
-                var values = [10,9,8,7,6,5,4,3,2,1];
-                var labels = ["a","b","c","d","e","f","g","h","i","j"];
+                var values = [];
+                var labels = [];
                 var i;
                 var data;
                 
@@ -31,7 +32,7 @@
                         labels: labels,
                         type: "pie"
                     }];
-                    var layout = {height: 500,width: 500};
+                    var layout = {};
                     Plotly.plot("pie",data,layout);
                     console.log("plotted: ", data);
                 }
@@ -44,6 +45,7 @@
                     }
                     
                 });
+                init();
                     
                 function optionChanged(route){
                     console.log("optionchanged");
@@ -55,8 +57,8 @@
                         labels = data.map(data => data.otu_ids)[0].splice(0,10);
                         console.log("labels:",labels);
                         values = data.map(data => data.sample_values)[0].splice(0,10);
-                        console.log("values:",values);
                         values = values.map(Number);
+                        console.log("values:",values);
                         
                         data = [{
                             values: values,
@@ -65,27 +67,30 @@
                         }];
                         console.log(data);
                         newdata = data;
-                        console.log(labels,values);    
+                        console.log(labels,values);  
+                        updatePlotly(labels,values);  
                     });
-
+                
                     function updatePlotly(labels,values) {
-                        console.log("updateplotly");
+
+                        console.log("UPDATE PLOTLY INPUT TEST LABELS: ",labels," VALUES: ", values);
                         var PIE = document.getElementById("pie");
-                        
-                        Plotly.restyle(PIE, "values", values);
-                        console.log(values);
-                        Plotly.restyle(PIE, "labels", labels);
-                        console.log(labels);
+
+                        data = {
+                            values: [values],
+                            labels: [labels],
+                            type: "pie"
+                        };
+                        Plotly.restyle(PIE, data);
+
+                        console.log(PIE, data);
+
                         console.log("restyled");
-                        
-                        console.log(PIE);
                     }
-                    updatePlotly(labels,values);
-                    
                 }
-                init();
+                
+                
             </script>
-        </select>
         
     </form>
     
