@@ -20,20 +20,19 @@
             <div class="row">
                 <div class="col-sm-2">
                     <h2>Select BB name</h2>
-                    <select id="SelName" onchange="optionChanged(this.value)">
-                        <option></option>
-                    </select>
+                    <select id="SelName" onchange="optionChanged(this.value)"><option>Make a selection</option></select>
                     <h2>Sidebar</h2>
                     <div id= "sidebar" class="width: 100% height: 100%"></div>
                 </div>
-                <div class="col-sm-5">
+                <div class="col-sm-10">
                     <h2>Pie Chart</h2>
                     <div id= "pie" class="width: 100% height: 100%"></div>
                 </div>
-                <div class="col-sm-5">
-                    <h2>Bubble Chart</h2>
-                    <div id= "bubble" class="width: 100% height: 100%"></div>
-                </div>
+                
+            </div>
+            <div class="row">
+                <h2>Bubble Chart</h2>
+                <div id= "bubble"></div>
             </div>
         </div>
 
@@ -47,6 +46,11 @@
                 var labels = [];
                 var i;
                 var data;
+                var bubbledata;
+                var botu = [];
+                var bval = [];
+                var blabels = [];
+                
                 
                 function init(){
                     
@@ -56,12 +60,25 @@
                         hovertext: hovertext,
                         type: "pie"
                     }];
-                    var layout = {};
+                    bubbledata = [{
+                        x: labels,
+                        y: values,
+                        text: hovertext,
+                        mode: 'markers',
+                        marker: {
+                            size: values,
+                            color: labels,
+                            colorscale: "Portland"
+                        }
+                    }];
+                    
+                    var layout = {hovermode: "closest"};
                     Plotly.plot("pie",data,layout);
+                    Plotly.plot("bubble",bubbledata,layout);
                 }
 
                 Plotly.d3.json("/names", function(error, samplenamelist){
-                    for(i = 0; i < samplenamelist.length; i += 1) {
+                    for(i = 0; i < samplenamelist.length; i++) {
                         var $dropdown = d3.select("#SelName");
                         var $label = $dropdown.append("option").attr("value",samplenamelist[i]).text(samplenamelist[i]);
                     }
@@ -71,18 +88,17 @@
                     
                 function optionChanged(route){
                 
-                    var newdata;
-                    var otu;
                     values=[];
                     labels=[];
                     hovertext=[];
                     
                     Plotly.d3.json(`/samples/${route}`,function(error,data){
-                        labels = data.map(data => data.otu_ids)[0].splice(0,10);
-                        values = data.map(data => data.sample_values)[0].splice(0,10);
+                        labels = data.map(data => data.otu_ids)[0];
+                        values = data.map(data => data.sample_values)[0];
+                        labels = labels.map(Number);
                         values = values.map(Number);
                         Plotly.d3.json(`/otu`,function(error,data){
-                            for (var l in labels.map(Number)){
+                            for (var l in labels){
                                 hovertext.push(data[labels[l]]);
                             }
 
@@ -95,6 +111,23 @@
                                     hovertext: hovertext,
                                     type: "pie"
                                 }];
+
+
+                                bubbledata = [{
+                                    x: labels,
+                                    y: values,
+                                    text: hovertext,
+                                    mode: 'markers',
+                                    marker: {
+                                        size: values,
+                                        color: labels,
+                                        colorscale: "Portland"
+                                    }
+                                }];
+
+
+
+
                                 newdata = data; 
                                 updatePlotly(labels,values,hovertext, sidebartext);  
 
@@ -104,18 +137,39 @@
                     });
 
                     function updatePlotly(labels,values,hovertext, sidebartext) {
-
-                        console.log("UPDATE PLOTLY INPUT TEST LABELS: ",labels," VALUES: ", values, "hovertext: ", hovertext);
+                        var BUBBLE = document.getElementById("bubble");
                         var PIE = document.getElementById("pie");
 
+
+
+                        
+                        botu = labels;
+                        bval = values;
+                        blabels = hovertext;
+
+                        bubbledata = {
+                            x: [labels],
+                            y: [values],
+                            text: [hovertext],
+                            mode: "markers",
+                            marker: [{
+                                size: values, 
+                                color: labels, 
+                                colorscale: "Portland"
+                                }]
+                        };
+                        console.log(bubbledata);
+                        Plotly.restyle(BUBBLE,bubbledata);
+
                         data = {
-                            values: [values],
-                            labels: [labels],
-                            hovertext: [hovertext],
+                            values: [values.splice(0,10)],
+                            labels: [labels.splice(0,10)],
+                            hovertext: [hovertext.splice(0,10)],
                             type: "pie"
                         };
                         Plotly.restyle(PIE, data);
 
+                        
                         var panel = document.getElementById("sidebar");
                         panel.innerHTML = "";
                         var sidebaroutput = "Sample Metadata";
@@ -123,7 +177,6 @@
                             sidebaroutput += ("<br>" + entry + ": " + sidebartext[entry]);
                         }
                         panel.innerHTML += sidebaroutput;
-                        console.log(JSON.stringify(sidebartext));
                     }
                 }
             </script>
