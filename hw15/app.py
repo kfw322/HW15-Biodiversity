@@ -28,6 +28,7 @@ inspector.get_columns("samples")
 inspector.get_columns("otu")
 Base.prepare()
 session=Session(engine)
+
 app = Flask(__name__)
 
 
@@ -35,6 +36,7 @@ app = Flask(__name__)
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # db = SQLAlchemy(app)
 # from .models import SamplesMetadata, Samples, Otu
+
 class SamplesMetadata(Base):
     __tablename__ = "samples_metadata"
     __table_args__ = {"extend_existing":True}
