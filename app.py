@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import os
-from flask_sqlalchemy import SQLAlchemy
 import sqlalchemy
 from sqlalchemy import create_engine, MetaData, inspect
 from sqlalchemy.ext.declarative import declarative_base
@@ -27,8 +26,6 @@ inspector.get_columns("samples_metadata")
 inspector.get_columns("samples")
 inspector.get_columns("otu")
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', '')# or "sqlite:///belly_button_biodiversity.sqlite?check_same_thread=False"
-db = SQLAlchemy(app)
 
 class SamplesMetadata(Base):
     __tablename__ = "samples_metadata"
@@ -49,6 +46,8 @@ Base.prepare()
 session=Session(engine)
 app = Flask(__name__)
 
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', '') or "sqlite:///belly_button_biodiversity.sqlite?check_same_thread=False"
+#db = SQLAlchemy(app)
 
 
 
