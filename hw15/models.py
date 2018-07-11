@@ -4,7 +4,6 @@ class SamplesMetadata(db.Model):
     __tablename__ = "samples_metadata"
     __table_args__ = {"extend_existing":True}
     sampleid = db.Column(db.Text,primary_key=True)
-    
     def __repr__(self):
         return '<SamplesMetadata %r>' % (self.sampleid)
 
