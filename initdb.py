@@ -1,4 +1,4 @@
-from .app import db
+from hw15.app import db
 import os
 
 # db.drop_all()
