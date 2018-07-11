@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from flask import Flask, jsonify, render_template, request, redirect
 import json
 
-engine = create_engine("sqlite:///belly_button_biodiversity.sqlite")
+engine = create_engine("sqlite:///belly_button_biodiversity.sqlite?check_same_thread=False")
 conn = engine.connect()
 Base= automap_base()
 Base.prepare(engine,reflect=True)
