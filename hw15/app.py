@@ -1,3 +1,4 @@
+from flask_sqlalchemy import SQLAlchemy
 import pandas as pd
 import numpy as np
 import os
@@ -14,7 +15,7 @@ import json
 
 
 
-engine = create_engine("sqlite:///belly_button_biodiversity.sqlite?check_same_thread=False")
+engine = create_engine("sqlite:///belly_button_biodiversity.sqlite")#?check_same_thread=False
 
 conn = engine.connect()
 Base= automap_base()
@@ -46,7 +47,7 @@ Base.prepare()
 session=Session(engine)
 app = Flask(__name__)
 
-from flask_sqlalchemy import SQLAlchemy
+
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', '') or "sqlite:///belly_button_biodiversity.sqlite" #?check_same_thread=False
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
