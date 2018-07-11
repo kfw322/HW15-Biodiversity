@@ -9,9 +9,7 @@ from sqlalchemy import Column, Integer, String, Numeric, Text, Float
 from sqlalchemy.sql import text
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.automap import automap_base
-import matplotlib.pyplot as plt
-import matplotlib
-matplotlib.use('Agg')
+
 from flask import Flask, jsonify, render_template, request, redirect
 import json
 
